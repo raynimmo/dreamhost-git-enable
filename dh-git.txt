@@ -1,0 +1,43 @@
+// ssh into server
+cd $HOME/<site root folder>
+git config --global user.name "user name"
+git config --global user.email "user email"
+git init
+git add .
+git commit -m "Init."
+
+//open terminal on localhost
+ssh-keygen -t rsa -b 4096 -C "Git repo name"
+// add ssh passphrase - remember it!
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@server.dreamhost.com
+// Will be prompted for FTP password for server
+ssh-add -K ~/.ssh/id_rsa
+// wil be prompted for ssh passphrase previously set
+
+//ssh into server
+mkdir $HOME/project.git
+cd $HOME/project.git
+git init --bare
+// This is where files are added after a git push - not the site root
+
+// setup sync to site root
+cat > hooks/post-receive
+#!/bin/sh
+git --work-tree=$HOME/<site root folder> --git-dir=$HOME/project.git checkout -f
+// CTRL + D to save
+
+chmod 755 hooks/post-receive 
+
+// in terminal on localhost
+mkdir <project-name>
+cd <project-name>
+git init
+git remote add origin ssh://<user>@<server.dreamhost.com>/home/<user>/project.git
+
+// create some files on local machine
+git add --all
+git commit -m "Init."
+git push --set-upstream origin master
+
+// Now the files are transferred into the site root
+
